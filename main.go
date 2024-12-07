@@ -66,6 +66,42 @@ func main() {
 		day06(part, file)
 	case 7:
 		day07(part, file)
+	case 8:
+		day08(part, file)
+	case 9:
+		day09(part, file)
+	case 10:
+		day10(part, file)
+	case 11:
+		day11(part, file)
+	case 12:
+		day12(part, file)
+	case 13:
+		day13(part, file)
+	case 14:
+		day14(part, file)
+	case 15:
+		day15(part, file)
+	case 16:
+		day16(part, file)
+	case 17:
+		day17(part, file)
+	case 18:
+		day18(part, file)
+	case 19:
+		day19(part, file)
+	case 20:
+		day20(part, file)
+	case 21:
+		day21(part, file)
+	case 22:
+		day22(part, file)
+	case 23:
+		day23(part, file)
+	case 24:
+		day24(part, file)
+	case 25:
+		day25(part, file)
 	}
 
 	return

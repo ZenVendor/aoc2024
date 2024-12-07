@@ -121,29 +121,22 @@ func day05(part int, file *os.File) {
 			updates = append(updates, Update{pages: pages})
 		}
 	}
-	/*
-	   for _, rule := range rules {
-	       fmt.Printf("%d: %v %v\n", rule.page, rule.pre, rule.post)
-	   }
-	   for _, update := range updates {
-	       fmt.Println(update)
-	   }
-	*/
+
 	midpages := 0
-	for uid := 0; uid < len(updates); uid++ {
-		updates[uid] = Check(updates[uid], rules)
-		if updates[uid].isCorrect {
-			mid := len(updates[uid].pages) / 2
-			midpages += updates[uid].pages[mid]
+
+	if part == 1 {
+		for uid := 0; uid < len(updates); uid++ {
+			updates[uid] = Check(updates[uid], rules)
+			if updates[uid].isCorrect {
+				mid := len(updates[uid].pages) / 2
+				midpages += updates[uid].pages[mid]
+			}
 		}
-		fmt.Printf("%v, %t\n", updates[uid].pages, updates[uid].isCorrect)
 	}
 
-	fmt.Printf("Day 05 part 1: %d\n", midpages)
-
 	if part == 2 {
-		midpages2 := 0
 		for uid := 0; uid < len(updates); uid++ {
+			updates[uid] = Check(updates[uid], rules)
 			if updates[uid].isCorrect {
 				continue
 			}
@@ -155,9 +148,8 @@ func day05(part int, file *os.File) {
 				updates[uid] = Fix(updates[uid])
 			}
 			mid := len(updates[uid].pages) / 2
-			midpages2 += updates[uid].pages[mid]
-			fmt.Printf("%v, %t\n", updates[uid].pages, updates[uid].isCorrect)
+			midpages += updates[uid].pages[mid]
 		}
-		fmt.Printf("Day 05 part 2: %d\n", midpages2)
 	}
+	fmt.Printf("Day 05 part %d: %d\n", part, midpages)
 }

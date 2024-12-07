@@ -99,9 +99,10 @@ func day07(part int, file *os.File) {
 		if ok {
 			sum += tv
 		}
-		fmt.Printf("Test value: %d, vals: %v, OK: %t\n", tv, vals, ok)
+		// fmt.Printf("Test value: %d, vals: %v, OK: %t\n", tv, vals, ok)
 		// fmt.Printf("Ops: %v, total: %d\n", ops, total)
 	}
+
 	fmt.Printf("Day 07 part %d: %d\n", part, sum)
 
 }

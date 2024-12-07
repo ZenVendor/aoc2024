@@ -104,34 +104,38 @@ func day06(part int, file *os.File) {
 		currPos = nextPos
 	}
 
-	fmt.Printf("Day 06 part 1: %d\n", len(path))
+	if part == 1 {
+		fmt.Printf("Day 06 part 1: %d\n", len(path))
+	}
 
 	if part == 2 {
 		fmt.Printf("Day 06 part 2: %d\n", len(newObs))
 	}
 
-	//fmt.Printf("\x1bc")
-	for y, row := range plan {
-		for x, col := range row {
-			char := string(col)
+	/*
+		//fmt.Printf("\x1bc")
+		for y, row := range plan {
+			for x, col := range row {
+				char := string(col)
 
-			if PositionIndex(path, Position{x, y}) > -1 {
-				char = "X"
-			}
-			if part == 2 {
-				if PositionIndex(newObs, Position{x, y}) > -1 {
-					char = "O"
+				if PositionIndex(path, Position{x, y}) > -1 {
+					char = "X"
 				}
-			}
-			if x == currPos.x && y == currPos.y {
-				char = displayDir()[currDir]
-			}
+				if part == 2 {
+					if PositionIndex(newObs, Position{x, y}) > -1 {
+						char = "O"
+					}
+				}
+				if x == currPos.x && y == currPos.y {
+					char = displayDir()[currDir]
+				}
 
-			fmt.Printf("%s", char)
+				fmt.Printf("%s", char)
+			}
+			fmt.Printf("\n")
 		}
-		fmt.Printf("\n")
-	}
-	fmt.Printf("%v\n", vLines)
-	fmt.Printf("%v\n", hLines)
+		fmt.Printf("%v\n", vLines)
+		fmt.Printf("%v\n", hLines)
+	*/
 
 }

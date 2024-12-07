@@ -9,115 +9,98 @@ import (
 
 func day04(part int, file *os.File) {
 
-	count := 0
 	lines := []string{}
+	count := 0
 
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		lines = append(lines, scanner.Text())
-		str := strings.Count(scanner.Text(), "XMAS")
-		rev := strings.Count(scanner.Text(), "SAMX")
-		count += str + rev
-		//fmt.Printf("%s :: str: %d, rev: %d\n", scanner.Text(), str, rev)
 	}
 
-	for x := 0; x < len(lines[0]); x++ {
-		var temp string
-		for y := 0; y < len(lines); y++ {
-			temp = fmt.Sprintf("%s%s", temp, string(lines[y][x]))
+	if part == 1 {
+
+		allLines := []string{}
+		for _, l := range lines {
+			allLines = append(allLines, l)
 		}
 
-		str := strings.Count(temp, "XMAS")
-		rev := strings.Count(temp, "SAMX")
-		count += str + rev
-		//fmt.Printf("%s :: str: %d, rev: %d\n", temp, str, rev)
-	}
+		for x := 0; x < len(lines[0]); x++ {
+			var temp string
+			for y := 0; y < len(lines); y++ {
+				temp = fmt.Sprintf("%s%s", temp, string(lines[y][x]))
+			}
+			allLines = append(allLines, temp)
+		}
 
-	for i := 0; i < len(lines[0]); i++ {
-		var temp string
-		x := i
-		y := 0
-		for {
-			if x == len(lines[0]) || y == len(lines) {
-				break
+		for i := 0; i < len(lines[0]); i++ {
+			var temp string
+			x, y := i, 0
+			for {
+				if x == len(lines[0]) || y == len(lines) {
+					break
+				}
+				temp = fmt.Sprintf("%s%s", temp, string(lines[y][x]))
+				x++
+				y++
 			}
-			temp = fmt.Sprintf("%s%s", temp, string(lines[y][x]))
-			x++
-			y++
-		}
-		if len(temp) < 4 {
-			continue
-		}
-		str := strings.Count(temp, "XMAS")
-		rev := strings.Count(temp, "SAMX")
-		count += str + rev
-		//fmt.Printf("%s :: str: %d, rev: %d\n", temp, str, rev)
-	}
-	for i := 1; i < len(lines); i++ {
-		var temp string
-		x := 0
-		y := i
-		for {
-			if x == len(lines[0]) || y == len(lines) {
-				break
+			if len(temp) >= 4 {
+				allLines = append(allLines, temp)
 			}
-			temp = fmt.Sprintf("%s%s", temp, string(lines[y][x]))
-			x++
-			y++
 		}
-		if len(temp) < 4 {
-			continue
+		for i := 1; i < len(lines); i++ {
+			var temp string
+			x, y := 0, i
+			for {
+				if x == len(lines[0]) || y == len(lines) {
+					break
+				}
+				temp = fmt.Sprintf("%s%s", temp, string(lines[y][x]))
+				x++
+				y++
+			}
+			if len(temp) >= 4 {
+				allLines = append(allLines, temp)
+			}
 		}
-		str := strings.Count(temp, "XMAS")
-		rev := strings.Count(temp, "SAMX")
-		count += str + rev
-		//fmt.Printf("%s :: str: %d, rev: %d\n", temp, str, rev)
-	}
 
-	for i := len(lines[0]) - 1; i >= 0; i-- {
-		var temp string
-		x := i
-		y := 0
-		for {
-			if x < 0 || y == len(lines) {
-				break
+		for i := len(lines[0]) - 1; i >= 0; i-- {
+			var temp string
+			x, y := i, 0
+			for {
+				if x < 0 || y == len(lines) {
+					break
+				}
+				temp = fmt.Sprintf("%s%s", temp, string(lines[y][x]))
+				x--
+				y++
 			}
-			temp = fmt.Sprintf("%s%s", temp, string(lines[y][x]))
-			x--
-			y++
-		}
-		if len(temp) < 4 {
-			continue
-		}
-		str := strings.Count(temp, "XMAS")
-		rev := strings.Count(temp, "SAMX")
-		count += str + rev
-		//fmt.Printf("%s :: str: %d, rev: %d\n", temp, str, rev)
-	}
-	for i := 1; i < len(lines); i++ {
-		var temp string
-		x := len(lines) - 1
-		y := i
-		for {
-			if x < 0 || y == len(lines) {
-				break
+			if len(temp) >= 4 {
+				allLines = append(allLines, temp)
 			}
-			temp = fmt.Sprintf("%s%s", temp, string(lines[y][x]))
-			x--
-			y++
 		}
-		if len(temp) < 4 {
-			continue
+		for i := 1; i < len(lines); i++ {
+			var temp string
+			x, y := len(lines)-1, i
+			for {
+				if x < 0 || y == len(lines) {
+					break
+				}
+				temp = fmt.Sprintf("%s%s", temp, string(lines[y][x]))
+				x--
+				y++
+			}
+			if len(temp) >= 4 {
+				allLines = append(allLines, temp)
+			}
 		}
-		str := strings.Count(temp, "XMAS")
-		rev := strings.Count(temp, "SAMX")
-		count += str + rev
-		//fmt.Printf("%s :: str: %d, rev: %d\n", temp, str, rev)
+		for _, l := range allLines {
+			str := strings.Count(l, "XMAS")
+			rev := strings.Count(l, "SAMX")
+			count += str + rev
+		}
 	}
-	fmt.Printf("Day 04 part 1: %d\n", count)
 
 	if part == 2 {
-		xmascount := 0
 		for y := 1; y < len(lines)-1; y++ {
 			for x := 1; x < len(lines[0])-1; x++ {
 				if lines[y][x] == 'A' {
@@ -130,11 +113,11 @@ func day04(part int, file *os.File) {
 					str := strings.Count(xmas, "MAS")
 					rev := strings.Count(xmas, "SAM")
 					if str+rev == 2 {
-						xmascount++
+						count++
 					}
 				}
 			}
 		}
-		fmt.Printf("Day 04 part 2: %d\n", xmascount)
 	}
+	fmt.Printf("Day 04 part %d: %d\n", part, count)
 }

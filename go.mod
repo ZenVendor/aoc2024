@@ -1,3 +1,3 @@
-module zen/aoc2024
+module ZenVendor/aoc2024
 
 go 1.22.2

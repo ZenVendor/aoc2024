@@ -47,7 +47,7 @@ func RecheckReport(report []int, ignore, main_dir int) bool {
 	return true
 }
 
-func CheckReport(report []int) (int, bool) {
+func CheckReport(report []int, part int) bool {
 	var dirs []int
 	var bad []int
 	count_inc := 0
@@ -78,47 +78,52 @@ func CheckReport(report []int) (int, bool) {
 		}
 	}
 	if len(bad) == 0 && count_inc*count_dec+count_nc == 0 {
-		return count_err, true
+		return true
 	}
-	if count_inc == 1 && count_nc == 0 {
-		idx := slices.Index(dirs, 1)
-		if !slices.Contains(bad, idx) {
-			bad = append(bad, idx)
+	if part == 2 {
+		if count_inc == 1 && count_nc == 0 {
+			idx := slices.Index(dirs, 1)
+			if !slices.Contains(bad, idx) {
+				bad = append(bad, idx)
+			}
+			if !slices.Contains(bad, idx+1) {
+				bad = append(bad, idx+1)
+			}
 		}
-		if !slices.Contains(bad, idx+1) {
-			bad = append(bad, idx+1)
+		if count_dec == 1 && count_nc == 0 {
+			idx := slices.Index(dirs, -1)
+			if !slices.Contains(bad, idx) {
+				bad = append(bad, idx)
+			}
+			if !slices.Contains(bad, idx+1) {
+				bad = append(bad, idx+1)
+			}
 		}
-	}
-	if count_dec == 1 && count_nc == 0 {
-		idx := slices.Index(dirs, -1)
-		if !slices.Contains(bad, idx) {
-			bad = append(bad, idx)
+		main_dir := 1
+		if count_inc-count_dec < 0 {
+			main_dir = -1
 		}
-		if !slices.Contains(bad, idx+1) {
-			bad = append(bad, idx+1)
-		}
-	}
-	main_dir := 1
-	if count_inc-count_dec < 0 {
-		main_dir = -1
-	}
-	if len(bad) > 0 && count_nc < 2 && (count_inc < 2 || count_dec < 2) {
-		for _, idx := range bad {
-			ok := RecheckReport(report, idx, main_dir)
-			if ok {
-				for i, r := range report {
-					if i == idx {
-						fmt.Printf("\033[1m%d\033[22m ", r)
-					} else {
-						fmt.Printf("%d ", r)
-					}
+		if len(bad) > 0 && count_nc < 2 && (count_inc < 2 || count_dec < 2) {
+			for _, idx := range bad {
+				ok := RecheckReport(report, idx, main_dir)
+				if ok {
+					/*
+						for i, r := range report {
+							if i == idx {
+								fmt.Printf("\033[1m%d\033[22m ", r)
+							} else {
+								fmt.Printf("%d ", r)
+							}
+						}
+						fmt.Printf(" :: ignored, %d\n", count_err)
+					*/
+					return true
 				}
-				fmt.Printf(" :: ignored, %d\n", count_err)
-				return count_err, true
 			}
 		}
 	}
-	return count_err, false
+
+	return false
 }
 
 func day02(part int, file *os.File) {
@@ -133,11 +138,12 @@ func day02(part int, file *os.File) {
 			n, _ := strconv.Atoi(num)
 			report = append(report, n)
 		}
-		errs, ok := CheckReport(report)
+		ok := CheckReport(report, part)
 		if ok {
 			safe++
-			fmt.Printf("%v\t%v, %t, %d\n", nums, report, ok, errs)
+			// fmt.Printf("%v\t%v, %t, %d\n", nums, report, ok, errs)
 		}
 	}
-	fmt.Printf("%d\n", safe)
+
+	fmt.Printf("Day 02 part %d: %d\n", part, safe)
 }

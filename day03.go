@@ -19,20 +19,22 @@ func day03(part int, file *os.File) {
 		if err != nil {
 			break
 		}
-		fmt.Printf("%s\n", line)
+		//fmt.Printf("%s\n", line)
 		if len(line) < 4 {
-			fmt.Println("\033[1mToo short\033[22m")
+			//fmt.Println("\033[1mToo short\033[22m")
 			continue
 		}
-		if len(line) > 6 && strings.Compare(line[len(line)-7:], "don't()") == 0 {
-			enabled = false
-			fmt.Printf("\033[1mDisabling\033[22m\n")
-			continue
-		}
-		if len(line) > 3 && strings.Compare(line[len(line)-4:], "do()") == 0 {
-			enabled = true
-			fmt.Printf("\033[1mEnabling\033[22m\n")
-			continue
+		if part == 2 {
+			if len(line) > 6 && strings.Compare(line[len(line)-7:], "don't()") == 0 {
+				enabled = false
+				//fmt.Printf("\033[1mDisabling\033[22m\n")
+				continue
+			}
+			if len(line) > 3 && strings.Compare(line[len(line)-4:], "do()") == 0 {
+				enabled = true
+				//fmt.Printf("\033[1mEnabling\033[22m\n")
+				continue
+			}
 		}
 		lo := 0
 		hi := len(line) - 1
@@ -61,12 +63,12 @@ func day03(part int, file *os.File) {
 				if enabled {
 					total += x * y
 				}
-				fmt.Printf("\033[1mx: %d, y: %d, enabled: %t\033[22m\n", x, y, enabled)
+				//fmt.Printf("\033[1mx: %d, y: %d, enabled: %t\033[22m\n", x, y, enabled)
 
 			}
 			lo += idx + 3
 		}
 	}
-	fmt.Printf("Total: %d", total)
+	fmt.Printf("Day 03 part %d: %d\n", part, total)
 
 }
