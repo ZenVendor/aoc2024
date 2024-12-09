@@ -11,11 +11,13 @@ import (
 )
 
 type Rule struct {
-	page int
-	post []int
+	page  int
+	after []int
 }
 
-func PageInRules(rules []Rule, page int) int {
+type Rules []Rule
+
+func (rules Rules) PageInRules(page int) int {
 	return slices.IndexFunc(rules, func(rule Rule) bool {
 		if rule.page == page {
 			return true
@@ -24,12 +26,12 @@ func PageInRules(rules []Rule, page int) int {
 	})
 }
 
-func UpdateRule(rules []Rule, first, second int) []Rule {
-	if idx := PageInRules(rules, first); idx == -1 {
-		rules = append(rules, Rule{page: first, post: []int{second}})
+func (rules Rules) UpdateRule(first, second int) []Rule {
+	if idx := rules.PageInRules(first); idx == -1 {
+		rules = append(rules, Rule{page: first, after: []int{second}})
 	} else {
-		if !slices.Contains(rules[idx].post, second) {
-			rules[idx].post = append(rules[idx].post, second)
+		if !slices.Contains(rules[idx].after, second) {
+			rules[idx].after = append(rules[idx].after, second)
 		}
 	}
 	return rules
@@ -38,29 +40,21 @@ func UpdateRule(rules []Rule, first, second int) []Rule {
 type Update struct {
 	pages     []int
 	isCorrect bool
-	incorrect []Position
+	incorrect Positions
 }
 
-func PairInList(list []Position, pair Position) bool {
-	return slices.ContainsFunc(list, func(p Position) bool {
-		return (p.x == pair.x && p.y == pair.y) ||
-			(p.x == pair.y && p.y == pair.x)
-	})
-}
-
-func Check(u Update, rules []Rule) Update {
+func (u Update) Check(rules Rules) Update {
 	for i := 0; i < len(u.pages); i++ {
-		idx := PageInRules(rules, u.pages[i])
+		idx := rules.PageInRules(u.pages[i])
 		if idx == -1 {
 			continue
 		}
 		rule := rules[idx]
 		for j := 0; j < i; j++ {
-			if slices.Contains(rule.post, u.pages[j]) {
-				p := Position{u.pages[i], u.pages[j]}
-				if !PairInList(u.incorrect, p) {
+			if slices.Contains(rule.after, u.pages[j]) {
+				p := Position{x: u.pages[i], y: u.pages[j], value: 0}
+				if !u.incorrect.ContainsPair(p) {
 					u.incorrect = append(u.incorrect, p)
-					//fmt.Printf("\tIncorrect: %d, %d\n", p.first, p.second)
 				}
 			}
 		}
@@ -73,20 +67,20 @@ func Check(u Update, rules []Rule) Update {
 	return u
 }
 
-func Fix(u Update) Update {
+func (u Update) Fix() Update {
 	for _, pair := range u.incorrect {
 		first := slices.Index(u.pages, pair.x)
 		second := slices.Index(u.pages, pair.y)
 		u.pages[first], u.pages[second] = u.pages[second], u.pages[first]
 	}
-	u.incorrect = []Position{}
+	u.incorrect = Positions{}
 	return u
 }
 
 func day05(part int, file *os.File) {
 
-	rules := []Rule{}
-	updates := []Update{}
+	var rules Rules
+	var updates []Update
 	section := 1
 
 	s := bufio.NewScanner(file)
@@ -105,7 +99,7 @@ func day05(part int, file *os.File) {
 			if err != nil {
 				log.Fatal(err)
 			}
-			rules = UpdateRule(rules, first, second)
+			rules = rules.UpdateRule(first, second)
 		}
 		if section == 2 {
 			pages := []int{}
@@ -126,7 +120,7 @@ func day05(part int, file *os.File) {
 
 	if part == 1 {
 		for uid := 0; uid < len(updates); uid++ {
-			updates[uid] = Check(updates[uid], rules)
+			updates[uid] = updates[uid].Check(rules)
 			if updates[uid].isCorrect {
 				mid := len(updates[uid].pages) / 2
 				midpages += updates[uid].pages[mid]
@@ -136,16 +130,16 @@ func day05(part int, file *os.File) {
 
 	if part == 2 {
 		for uid := 0; uid < len(updates); uid++ {
-			updates[uid] = Check(updates[uid], rules)
+			updates[uid] = updates[uid].Check(rules)
 			if updates[uid].isCorrect {
 				continue
 			}
 			for {
-				updates[uid] = Check(updates[uid], rules)
+				updates[uid] = updates[uid].Check(rules)
 				if updates[uid].isCorrect {
 					break
 				}
-				updates[uid] = Fix(updates[uid])
+				updates[uid] = updates[uid].Fix()
 			}
 			mid := len(updates[uid].pages) / 2
 			midpages += updates[uid].pages[mid]

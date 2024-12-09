@@ -7,66 +7,10 @@ import (
 	"slices"
 )
 
-type Antenna struct {
-	freq rune
-	x    int
-	y    int
-}
-
-type Antennae []Antenna
-
-func (ants Antennae) Sort() {
-	slices.SortFunc(ants, func(a, b Antenna) int {
-		if n := int(a.freq) - int(b.freq); n != 0 {
-			return n
-		}
-		if n := a.y - b.y; n != 0 {
-			return n
-		}
-		return a.x - b.x
-	})
-}
-
-func (ants Antennae) CheckLocation(x, y int) int {
-	return slices.IndexFunc(ants, func(a Antenna) bool {
-		return a.x == x && a.y == y
-	})
-}
-
-func (ants Antennae) FindFreq(freq rune) int {
-	return slices.IndexFunc(ants, func(a Antenna) bool {
-		return a.freq == freq
-	})
-}
-
-func (ants Antennae) FindAllOnFreq(freq rune) Antennae {
-	ants.Sort()
-	var rs Antennae
-	idx := ants.FindFreq(freq)
-	for i := idx; i < len(ants); i++ {
-		if ants[i].freq == freq {
-			rs = append(rs, ants[i])
-		}
-	}
-	return rs
-}
-
-func (a Antenna) WithinField(w, h int) bool {
-	if a.x < 0 || a.x >= w {
-		return false
-	}
-	if a.y < 0 || a.y >= h {
-		return false
-	}
-	return true
-}
-
 func day08(part int, file *os.File) {
 
-	var ants Antennae
-	var frequencies []rune
-	fieldW := 0
-	fieldH := 0
+	var field Plan
+	var frequencies []int
 
 	x, y := 0, 0
 	s := bufio.NewReader(file)
@@ -76,27 +20,28 @@ func day08(part int, file *os.File) {
 			break
 		}
 		if char == '\n' {
-			fieldW = x
-			fieldH = y + 1
+			field.width = x
+			field.height = y + 1
 			x = 0
 			y++
 			continue
 		}
 		if char != '.' {
-			ants = append(ants, Antenna{freq: char, x: x, y: y})
-			if !slices.Contains(frequencies, char) {
-				frequencies = append(frequencies, char)
+			val := int(char)
+			field.objects = append(field.objects, Position{x: x, y: y, value: val})
+			if !slices.Contains(frequencies, val) {
+				frequencies = append(frequencies, val)
 			}
 		}
 		x++
 	}
 
 	count := 0
-	var antinodes Antennae
+	var antinodes Positions
 	if part == 1 {
 		for _, freq := range frequencies {
-			freqAnts := ants.FindAllOnFreq(freq)
-			freqANs := Antennae{}
+			freqAnts := field.objects.FindAllWithValue(freq)
+			var freqANs Positions
 			if len(freqAnts) > 1 {
 				for i := 0; i < len(freqAnts); i++ {
 					for j := 0; j < len(freqAnts); j++ {
@@ -109,14 +54,14 @@ func day08(part int, file *os.File) {
 						an := freqAnts[i]
 						an.x -= xDist
 						an.y -= yDist
-						if an.WithinField(fieldW, fieldH) {
+						if !an.OutOfBounds(field.width, field.height) {
 							freqANs = append(freqANs, an)
 						}
 
 						an = freqAnts[j]
 						an.x += xDist
 						an.y += yDist
-						if an.WithinField(fieldW, fieldH) {
+						if !an.OutOfBounds(field.width, field.height) {
 							freqANs = append(freqANs, an)
 						}
 					}
@@ -127,8 +72,8 @@ func day08(part int, file *os.File) {
 	}
 	if part == 2 {
 		for _, freq := range frequencies {
-			freqAnts := ants.FindAllOnFreq(freq)
-			freqANs := Antennae{}
+			freqAnts := field.objects.FindAllWithValue(freq)
+			var freqANs Positions
 			if len(freqAnts) > 1 {
 				for i := 0; i < len(freqAnts); i++ {
 					for j := 0; j < len(freqAnts); j++ {
@@ -142,7 +87,7 @@ func day08(part int, file *os.File) {
 						for {
 							an.x = an.x - xDist
 							an.y = an.y - yDist
-							if !an.WithinField(fieldW, fieldH) {
+							if an.OutOfBounds(field.width, field.height) {
 								break
 							}
 							freqANs = append(freqANs, an)
@@ -152,7 +97,7 @@ func day08(part int, file *os.File) {
 						for {
 							an.x = an.x + xDist
 							an.y = an.y + yDist
-							if !an.WithinField(fieldW, fieldH) {
+							if an.OutOfBounds(field.width, field.height) {
 								break
 							}
 							freqANs = append(freqANs, an)
@@ -163,10 +108,10 @@ func day08(part int, file *os.File) {
 			antinodes = slices.Concat(antinodes, freqANs)
 		}
 	}
-	antinodes.Sort()
-	var validANs Antennae
+	antinodes.SortByValueYX()
+	var validANs Positions
 	for _, an := range antinodes {
-		if validANs.CheckLocation(an.x, an.y) == -1 {
+		if !validANs.Contains(an) {
 			validANs = append(validANs, an)
 			count++
 		}
@@ -178,8 +123,8 @@ func day08(part int, file *os.File) {
 				if idx := validANs.CheckLocation(x, y); idx != -1 {
 					char = "#"
 				}
-				if idx := ants.CheckLocation(x, y); idx != -1 {
-					char = string(ants[idx].freq)
+				if idx := field.objects.CheckLocation(x, y); idx != -1 {
+					char = string(field.objects[idx].freq)
 				}
 				fmt.Printf("%s", char)
 			}
